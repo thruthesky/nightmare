@@ -125,7 +125,7 @@ export class MyNightmare extends Nightmare {
     }
 
 
-    async _exit(msg) {
+    async _exit(msg='') {
         // console.log(msg);
         // await nightmare.then();
         // await nightmare.end();
