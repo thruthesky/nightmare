@@ -8,7 +8,7 @@ export class MyNightmare extends Nightmare {
     ua = {
         firefox: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:54.0) Gecko/20100101 Firefox/54.0",
         chrome: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
-    }
+    };
     constructor(defaultOptions) {
         super(defaultOptions);
     }
@@ -99,6 +99,12 @@ export class MyNightmare extends Nightmare {
         await this.wait(wait);
     }
 
+    async clickWaitTest(click, wait, msg) {
+        await this.click(click);
+        await this.waitTest( wait, msg );
+    }
+
+
     async _exit(msg) {
         console.log(msg);
         // await nightmare.then();
@@ -144,7 +150,7 @@ export class MyNightmare extends Nightmare {
      *      - you only know that some in this page will disappear if page chages.
      * 
      * @param selector Selector to be disappears.
-     * @param timeout timeout. defualt 30 seconds.
+     * @param timeout timeout. default 30 seconds.
      * 
      * @code
      *     let re = await nightmare.Appear( selector );
@@ -190,5 +196,28 @@ export class MyNightmare extends Nightmare {
             case '8': return '@' ;
             case '9': return '!';
         }
+    }
+
+
+    /**
+     * Wait until either of the 2 selector exist
+     * @usa
+     *      - when you are expecting the page to show something on the same page
+     *      - and at the same time you also expect another event may trigger
+     *      ex.
+     *      - you are waiting for an popup but you also expect the page will change
+     *      - its either success or failed scenario
+     *      - which event will comes first
+     */
+    async waitSelectorExist(trueSelector, falseSelector, timeout=30) {
+        let $html = null;
+        let maxWaitCount = timeout * 1000 / 100;
+        for ( let i = 0; i < maxWaitCount; i ++ ) {
+            await this.wait(100);
+            $html = await this.getHtml();
+            if ( $html.find(trueSelector).length > 0 ) return true;
+            if ( $html.find(falseSelector).length > 0 ) return false;
+        }
+        return false;
     }
 }
