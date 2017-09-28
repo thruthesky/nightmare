@@ -218,6 +218,7 @@ export class MyNightmare extends Nightmare {
         }
     }
 
+    
 
     date(format?: any, timestamp?: any): any {
         return date(format, timestamp);
