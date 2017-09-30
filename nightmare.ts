@@ -88,7 +88,7 @@ export class MyNightmare extends Nightmare {
     }
     failure(message) {
         console.log("FAILURE : " + message);
-        //this._exit('App will close.');
+        // this._exit('App will close.');
     }
     nextAction(message) {
         console.log("NEXT ACTION : " + message);
@@ -121,15 +121,15 @@ export class MyNightmare extends Nightmare {
 
     async clickWaitTest(click, wait, msg) {
         await this.click(click);
-        await this.waitTest( wait, msg );
+        await this.waitTest(wait, msg);
     }
 
 
-    async _exit(msg='') {
+    async _exit(msg = '') {
         // console.log(msg);
         // await nightmare.then();
         // await nightmare.end();
-        if ( msg ) console.log(msg);
+        if (msg) console.log(msg);
         process.exit(0);
     }
 
@@ -160,7 +160,7 @@ export class MyNightmare extends Nightmare {
         for (let i = 0; i < maxWaitCount; i++) {
             await this.wait(100);
             $html = await this.getHtml();
-            if ($html.find(selector).length == 0) return true;
+            if ($html.find(selector).length === 0) return true;
         }
         return false;
     }
@@ -226,7 +226,7 @@ export class MyNightmare extends Nightmare {
 
     /**
      * Wait until either of the 2 selector exist
-     * @usa
+     * @use
      *      - when you are expecting the page to show something on the same page
      *      - and at the same time you also expect another event may trigger
      *      ex.
@@ -234,7 +234,7 @@ export class MyNightmare extends Nightmare {
      *      - its either success or failed scenario
      *      - which event will comes first
      */
-    async waitSelectorExist(trueSelector, falseSelector, timeout=30) {
+    async waitSelectorExist(trueSelector, falseSelector, timeout = 30) {
         let $html = null;
         let maxWaitCount = timeout * 1000 / 100;
         for (let i = 0; i < maxWaitCount; i++) {
@@ -245,6 +245,36 @@ export class MyNightmare extends Nightmare {
         }
         return false;
     }
+
+
+    /**
+     * Returns a promise of number indicating which selector has been appeared.
+     * 
+     * @return
+     *      Promise(-1) - If none of the selectors are appeared.
+     *      Promise( 0 ) - If the first selector appeared.
+     *      Promise( 1 ) - If the second selector appeared.
+     *      Promise( 2 ) - If the third selector appeared.
+     *      and so on.
+     * 
+     * @code
+     *      const n = await this.waitSelectors( [ '.error', '.home-form-header' ] );
+     * @endcode
+     */
+    async waitSelectors( selectors, timeout = 30) {
+        let $html = null;
+        const maxWaitCount = timeout * 1000 / 100;
+        for (let i = 0; i < maxWaitCount; i++) {
+            await this.wait(100);
+            $html = await this.getHtml();
+            for ( let i = 0; i < selectors.length; i ++ ) {
+                if ($html.find( selectors[i] ).length > 0) return i;
+            }
+        }
+        return -1;
+    }
+
+
 
     date(format?: any, timestamp?: any): any {
         return date(format, timestamp);
