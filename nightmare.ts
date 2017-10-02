@@ -52,18 +52,40 @@ export class MyNightmare extends Nightmare {
         let html = await this
             .goto(url)
             .evaluate(() => document.querySelector('html').innerHTML)
-            .then(a => a);
+            .then(a => a)
+            .catch(e => {
+                console.log("ERROR: ", e);
+            });
         // console.log('html: ', html);
         let $html = c.load(html)('html');
         return $html;
     }
     /**
      * Returns cheerio object of curent page's HTML.
+     * 
+     * @note it waits for 3 seconds if the page has no document.
+     * 
+     * @case
+     *      1. page moved
+     *      2. and this method is called immediately before the new page appears,
+     *      3. then it has nothing ( no document ).
+     *      so, it waits for 30 seconds until the page appears.
      */
     async getHtml() {
-        let html = await this
-            .evaluate(() => document.querySelector('html').innerHTML)
-            .then(a => a);
+
+        let html = null;
+
+        for (let i = 0; i < 300; i++) {
+            html = await this
+                .evaluate(() => {
+                    const doc = document.querySelector('html');
+                    if (doc) return doc.innerHTML;
+                    return null;
+                })
+                .then(a => a);
+            if ( html ) break;
+            else await this.wait(100);
+        }
         let $html = c.load(html)('html');
         return $html;
     }
@@ -261,14 +283,14 @@ export class MyNightmare extends Nightmare {
      *      const n = await this.waitSelectors( [ '.error', '.home-form-header' ] );
      * @endcode
      */
-    async waitSelectors( selectors, timeout = 30) {
+    async waitSelectors(selectors, timeout = 30) {
         let $html = null;
         const maxWaitCount = timeout * 1000 / 100;
         for (let i = 0; i < maxWaitCount; i++) {
             await this.wait(100);
             $html = await this.getHtml();
-            for ( let i = 0; i < selectors.length; i ++ ) {
-                if ($html.find( selectors[i] ).length > 0) return i;
+            for (let i = 0; i < selectors.length; i++) {
+                if ($html.find(selectors[i]).length > 0) return i;
             }
         }
         return -1;
